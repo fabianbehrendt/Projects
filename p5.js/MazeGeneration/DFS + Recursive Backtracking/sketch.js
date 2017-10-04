@@ -8,6 +8,7 @@ let numberOfCellsChanged = false
 
 function setup () {
   createCanvas(1025, 1025)
+  strokeCap(SQUARE)
   width -= 1
   height -= 1
 
@@ -29,7 +30,15 @@ function setup () {
 
   for (let x = 0; x < numberOfCells; x++) {
     for (let y = 0; y < numberOfCells; y++) {
-      grid[x][y] = new Cell(x, y, cellSize)
+      grid[x][y] = new Cell(x, y)
+
+      if (y != 0) {
+        grid[x][y].north = new Wall(x, y, x + 1, y)
+      }
+
+      if (x != 0) {
+        grid[x][y].west = new Wall(x, y, x, y + 1)
+      }
     }
   }
 }
@@ -56,7 +65,15 @@ function draw () {
 
     for (let x = 0; x < numberOfCells; x++) {
       for (let y = 0; y < numberOfCells; y++) {
-        grid[x][y] = new Cell(x, y, cellSize)
+        grid[x][y] = new Cell(x, y)
+
+        if (y != 0) {
+          grid[x][y].north = new Wall(x, y, x + 1, y)
+        }
+
+        if (x != 0) {
+          grid[x][y].west = new Wall(x, y, x, y + 1)
+        }
       }
     }
 
@@ -70,6 +87,14 @@ function draw () {
       let current = grid[x][y]
       current.show()
 
+      if (current.north) {
+        current.north.show()
+      }
+
+      if (current.west) {
+        current.west.show()
+      }
+
       if (!current.visited) {
         unvisitedCellsLeft = true
       }
@@ -79,6 +104,15 @@ function draw () {
       }
     }
   }
+
+  // Display the border
+  noFill()
+  stroke(0)
+
+  line(0, 0, width, 0)
+  line(0, 0, 0, height)
+  line(width, 0, width, height)
+  line(0, height, width, height)
 
   if (unvisitedCellsLeft && currentCell) {
     let unvisitedNeighbours = getUnvisitedNeighbours(currentCell)
@@ -107,19 +141,15 @@ function draw () {
 
 function removeWalls (cell1, cell2) {
   if (cell1.x < cell2.x) {
-    cell1.walls.e = false
-    cell2.walls.w = false
+    cell2.west = null
   } else if (cell1.x > cell2.x) {
-    cell1.walls.w = false
-    cell2.walls.e = false
+    cell1.west = null
   }
 
   if (cell1.y < cell2.y) {
-    cell1.walls.s = false
-    cell2.walls.n = false
+    cell2.north = null
   } else if (cell1.y > cell2.y) {
-    cell1.walls.n = false
-    cell2.walls.s = false
+    cell1.north = null
   }
 }
 
